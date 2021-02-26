@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"strings"
@@ -12,6 +13,18 @@ import (
 )
 
 func main() {
+	svc := flag.String("service", "", "AWS service")
+	flag.Parse()
+
+	switch *svc {
+	case "rds":
+		rdsUsage()
+	default:
+		panic("unknown service")
+	}
+}
+
+func rdsUsage() {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		log.Fatal(err)
@@ -20,6 +33,10 @@ func main() {
 	client := rds.NewFromConfig(cfg)
 
 	output, err := client.DescribeDBInstances(context.TODO(), &rds.DescribeDBInstancesInput{})
+
+	if err != nil {
+		panic(err)
+	}
 
 	baseSizes := map[string]string{
 		"t": "micro",
